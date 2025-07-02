@@ -7,7 +7,6 @@ from core.utils import preprocess, metrics
 import lpips
 import torch
 from skimage import img_as_float32
-from utils.gradient_loss import gradient_loss
 
 loss_fn_alex = lpips.LPIPS(net='alex')
 
