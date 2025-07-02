@@ -6,6 +6,7 @@ from skimage.metrics import structural_similarity as compare_ssim
 from core.utils import preprocess, metrics
 import lpips
 import torch
+from skimage import img_as_float32
 
 loss_fn_alex = lpips.LPIPS(net='alex')
 
@@ -103,7 +104,15 @@ def test(model, test_input_handle, configs, itr):
 
             psnr[i] += metrics.batch_psnr(pred_frm, real_frm)
             for b in range(configs.batch_size):
-                score, _ = compare_ssim(pred_frm[b], real_frm[b], full=True, multichannel=True)
+                # score, _ = compare_ssim(pred_frm[b], real_frm[b], full=True, multichannel=True)
+                score, _ = compare_ssim(
+                    img_as_float32(pred_frm[b]),
+                    img_as_float32(real_frm[b]),
+                    full=True,
+                    channel_axis=-1,
+                    data_range=1.0    # replaces multichannel=True
+                )
+                
                 ssim[i] += score
 
         # save prediction examples
