@@ -127,4 +127,4 @@ class RNN(nn.Module):
 
         loss = pixel_loss + lambda_gdl * gdl + self.configs.decouple_beta * decouple_loss
 
-        return next_frames, loss
+        return next_frames, loss, pixel_loss.detach(), gdl.detach()

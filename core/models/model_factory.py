@@ -41,10 +41,20 @@ class Model(object):
         frames_tensor = torch.FloatTensor(frames).to(self.configs.device)
         mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
         self.optimizer.zero_grad()
-        next_frames, loss = self.network(frames_tensor, mask_tensor)
+
+        if self.configs.model_name == 'predrnn_v4':
+            next_frames, loss, pixel_loss, gdl_loss = self.network(frames_tensor, mask_tensor)
+        else:
+            next_frames, loss = self.network(frames_tensor, mask_tensor)
+
         loss.backward()
         self.optimizer.step()
-        return loss.detach().cpu().numpy()
+
+        if self.configs.model_name == 'predrnn_v4':
+            return loss.detach().cpu().numpy(), pixel_loss.cpu().item(), gdl_loss.cpu().item()
+        else:
+            return loss.detach().cpu().numpy()
+
 
     def test(self, frames, mask):
         frames_tensor = torch.FloatTensor(frames).to(self.configs.device)
