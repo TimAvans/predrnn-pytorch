@@ -170,6 +170,11 @@ def schedule_sampling(eta, itr):
 def train_wrapper(model):
     if args.pretrained_model:
         model.load(args.pretrained_model)
+        # Extract starting iteration from checkpoint filename (e.g., model.ckpt-5000)
+        start_itr = int(os.path.basename(args.pretrained_model).split('-')[-1])
+    else:
+        start_itr = 0
+
     # load data
     train_input_handle, test_input_handle = datasets_factory.data_provider(
         args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_width,
@@ -177,7 +182,7 @@ def train_wrapper(model):
 
     eta = args.sampling_start_value
 
-    for itr in range(1, args.max_iterations + 1):
+    for itr in range(start_itr + 1, args.max_iterations + 1):
         if train_input_handle.no_batch_left():
             train_input_handle.begin(do_shuffle=True)
         ims = train_input_handle.get_batch()
@@ -197,6 +202,7 @@ def train_wrapper(model):
             trainer.test(model, test_input_handle, args, itr)
 
         train_input_handle.next()
+
 
 
 def test_wrapper(model):
